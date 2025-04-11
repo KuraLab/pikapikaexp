@@ -2,17 +2,17 @@ import socket
 
 # 各エージェントごとのパラメータ設定（例）
 agent_params = {
-    1: {"omega": 3.14 * 6.2, "kappa": 1.0},
-    2: {"omega": 3.14 * 6.1, "kappa": 1.0},
-    3: {"omega": 3.14 * 6.0, "kappa": 1.0},
-    4: {"omega": 3.14 * 5.9, "kappa": 1.0},
+    1: {"omega": 3.14 * 6.2, "kappa": 1.0, "alpha": 0.5},
+    2: {"omega": 3.14 * 6.0, "kappa": 1.0, "alpha": 0.6},
+    3: {"omega": 3.14 * 6.0, "kappa": 1.0, "alpha": 0.7},
+    4: {"omega": 3.14 * 5.9, "kappa": 1.0, "alpha": 0.8},
     # 必要に応じて他のエージェントの設定を追加
 }
 
 def udp_param_server_thread(port=5001):
     """
     指定ポートでUDPによるパラメータ要求を待ち受け、
-    エージェントのリクエストに応じて "PARAM,omega=...,kappa=..." のような文字列を返す。
+    エージェントのリクエストに応じて "PARAM,omega=...,kappa=...,alpha=..." のような文字列を返す。
     
     リクエスト例: "REQUEST_PARAM,agent=2"
     """
@@ -44,6 +44,8 @@ def udp_param_server_thread(port=5001):
             if params is None:
                 response = f"ERROR, unknown agent id {agent_id}"
             else:
-                response = f"PARAM,omega={params['omega']},kappa={params['kappa']}"
+                response = (f"PARAM,omega={params['omega']},"
+                            f"kappa={params['kappa']},"
+                            f"alpha={params['alpha']}")
             
             sock.sendto(response.encode(), addr)

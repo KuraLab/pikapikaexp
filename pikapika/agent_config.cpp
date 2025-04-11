@@ -22,7 +22,7 @@ int readAgentIdFromFile() {
     return line.toInt(); // ファイルの値をintに変換して返す
 }
 
-bool requestParameters(int agent_id, WiFiUDP &udpParam, IPAddress serverIP, unsigned int paramServerPort, float &omega, float &kappa) {
+bool requestParameters(int agent_id, WiFiUDP &udpParam, IPAddress serverIP, unsigned int paramServerPort, float &omega, float &kappa, float &alpha) {
   // エージェント固有のパラメータ要求メッセージを作成
   char reqMsg[50];
   sprintf(reqMsg, "REQUEST_PARAM,agent=%d", agent_id);
@@ -43,26 +43,27 @@ bool requestParameters(int agent_id, WiFiUDP &udpParam, IPAddress serverIP, unsi
         buff[len] = '\0';
       }
       String reply = String(buff);
-      // 例: "PARAM,omega=0.1,kappa=1.5"
+      // 例: "PARAM,omega=0.1,kappa=1.5,alpha=0.5"
       if (reply.startsWith("PARAM,")) {
         int idxOmega = reply.indexOf("omega=");
         int idxKappa = reply.indexOf("kappa=");
-        if (idxOmega != -1 && idxKappa != -1) {
+        int idxAlpha = reply.indexOf("alpha=");
+        if (idxOmega != -1 && idxKappa != -1 && idxAlpha != -1) {
           int commaAfterOmega = reply.indexOf(',', idxOmega);
-          String omegaStr;
-          if (commaAfterOmega == -1) {
-            omegaStr = reply.substring(idxOmega + 6);
-          } else {
-            omegaStr = reply.substring(idxOmega + 6, commaAfterOmega);
-          }
-          String kappaStr = reply.substring(idxKappa + 6);
+          int commaAfterKappa = reply.indexOf(',', idxKappa);
+          String omegaStr = reply.substring(idxOmega + 6, commaAfterOmega);
+          String kappaStr = reply.substring(idxKappa + 6, commaAfterKappa);
+          String alphaStr = reply.substring(idxAlpha + 6);
           omega = omegaStr.toFloat();
           kappa = kappaStr.toFloat();
+          alpha = alphaStr.toFloat();
           Serial.println("Received parameters from server:");
           Serial.print("  omega = ");
           Serial.println(omega, 6);
           Serial.print("  kappa = ");
           Serial.println(kappa, 6);
+          Serial.print("  alpha = ");
+          Serial.println(alpha, 6);
           return true;
         }
       }

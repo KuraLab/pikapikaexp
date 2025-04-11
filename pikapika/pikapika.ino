@@ -42,6 +42,7 @@ float phi = 0.0f;
 float phidot = 0.0f;
 float omega = 3.14f * 5.95f; // 初期値（サーバから取得できたら上書きされる）
 float kappa = 1.0f;
+float alpha = 0.0f; // alpha を追加
 
 // タイマー管理用
 unsigned long previousMicros = 0;
@@ -81,7 +82,7 @@ void setup() {
   Serial.println(agent_id);
 
   // サーバからパラメータ取得
-  if (requestParameters(agent_id, udpParam, serverIP, paramServerPort, omega, kappa)) {
+  if (requestParameters(agent_id, udpParam, serverIP, paramServerPort, omega, kappa, alpha)) {
     Serial.println("Parameter update succeeded.");
   } else {
     Serial.println("Using default parameters.");
@@ -134,7 +135,7 @@ void loop() {
   digitalWrite(15, state ? HIGH : LOW);
 
   // フェーズ変化率 phidot 計算と phi 更新
-  phidot = omega - kappa * cos(phi) * dvdt;
+  phidot = omega - kappa * sin(phi + alpha) * sensorV; // alpha を考慮
   phi += phidot * dt;
   
   // 送信時刻 (秒)
