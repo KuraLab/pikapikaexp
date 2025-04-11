@@ -40,7 +40,7 @@ float adcV0, adcV7;
 // フェーズ変数
 float phi = 0.0f;
 float phidot = 0.0f;
-float omega = 3.14f * 5.95f; // 初期値（サーバから取得できたら上書きされる）
+float omega = 3.14f * 6.0f; // 初期値（サーバから取得できたら上書きされる）
 float kappa = 1.0f;
 float alpha = 0.0f; // alpha を追加
 
@@ -48,6 +48,12 @@ float alpha = 0.0f; // alpha を追加
 unsigned long previousMicros = 0;
 unsigned long ntpRefMicros = 0;
 unsigned long ntpRefEpoch = 0;
+
+// リングバッファ
+const int bufferSize = 300;
+float sensorV_buffer[bufferSize];
+float phi_buffer[bufferSize];
+int bufferIndex = 0;
 
 void setup() {
   Serial.begin(115200);
@@ -115,16 +121,43 @@ void loop() {
   // 各光センサの値を合計
   sensorV = sensorV28 + sensorV27 + adcV0 + adcV7;
 
+  // 現在のsensorVとphiをリングバッファに保存
+  sensorV_buffer[bufferIndex] = sensorV;
+  phi_buffer[bufferIndex] = phi;
+  bufferIndex = (bufferIndex + 1) % bufferSize;
+
+  // 過去2π以内のデータを収集して平均を計算
+  float sensorV_sum = 0.0f;
+  int count = 0;
+  for (int i = 0; i < bufferSize; i++) {
+    float phi_diff = phi - phi_buffer[i];
+    if (phi_diff < 0) {
+      phi_diff += 2 * 3.14159265359f; // 位相を正の値に補正
+    }
+    if (phi_diff <= 2 * 3.14159265359f) { // 2π以内のデータを収集
+      sensorV_sum += sensorV_buffer[i];
+      count++;
+    }
+  }
+
+  // 平均値を計算
+  float sensorV_avg = (count > 0) ? (sensorV_sum / count) : 0.0f;
+
+  // 平均値を使用してオフセットを引く
+  sensorV -= sensorV_avg;
+
+  // バッファの状態をシリアルモニタに出力
+  Serial.print("Buffer Index: ");
+  Serial.print(bufferIndex);
+  Serial.print(", Data Count: ");
+  Serial.print(count);
+  Serial.print(", Buffer Size: ");
+  Serial.println(bufferSize);
+
   // バッテリー電圧 (GPIO26)
   batteryRaw = analogRead(26);
   batteryV   = batteryRaw * 6.6f / (1 << 12);
 
-  // dv/dt
-  if (dt > 0.0f) {
-    dvdt = (sensorV - sensorV_old) / dt;
-  } else {
-    dvdt = 0.0f;
-  }
   sensorV_old = sensorV;
 
   // デジタル出力制御 (4本)
@@ -137,7 +170,7 @@ void loop() {
   // フェーズ変化率 phidot 計算と phi 更新
   phidot = omega - kappa * sin(phi + alpha) * sensorV; // alpha を考慮
   phi += phidot * dt;
-  
+
   // 送信時刻 (秒)
   double timestamp = micros() / 1000000.0;
 
@@ -151,6 +184,4 @@ void loop() {
   udp.beginPacket(serverIP, serverPort);
   udp.print(buf);
   udp.endPacket();
-
-  delay(5);
 }

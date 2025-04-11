@@ -1,10 +1,11 @@
 import socket
+import numpy as np
 
 # 各エージェントごとのパラメータ設定（例）
 agent_params = {
     1: {"omega": 3.14 * 6.2, "kappa": 1.0, "alpha": 0.5},
-    2: {"omega": 3.14 * 6.0, "kappa": 1.0, "alpha": 0.6},
-    3: {"omega": 3.14 * 6.0, "kappa": 1.0, "alpha": 0.7},
+    2: {"omega": 3.14 * 6.0, "kappa": 30.0, "alpha": -0*np.pi/4},
+    3: {"omega": 3.14 * 6.0, "kappa": 30.0, "alpha": -0*np.pi/4},    
     4: {"omega": 3.14 * 5.9, "kappa": 1.0, "alpha": 0.8},
     # 必要に応じて他のエージェントの設定を追加
 }
