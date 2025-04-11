@@ -1,0 +1,89 @@
+% CSVファイルの読み込み
+data = readtable('exported_data\phase_diff_all_agents_20250307_151823.csv');
+
+% 1列目がタイムスタンプ、残りの列が各エージェントの位相差
+time_data = data{:, 1};
+time_data = - time_data(1) + time_data ;
+
+%figure;
+% agent 1 は基準としてゼロでプロット
+%plot(time_data, zeros(length(time_data),1), 'DisplayName', "Agent 1")
+%hold on;
+% 2列目以降をそれぞれプロット
+for col = 2:width(data)
+    phase_diff = data{:, col};
+    
+    new_time = [];
+    new_phase = [];
+    N = length(phase_diff);
+    
+    for i = 1:N-1
+        % 現在のデータを追加
+        new_time(end+1,1) = time_data(i);
+        new_phase(end+1,1) = phase_diff(i);
+        
+        % 隣接点の差が π を超える場合に補助点を挿入
+        if abs(phase_diff(i+1) - phase_diff(i)) > pi
+            % 補助点の時間は両点の中央値
+            t_mid = (time_data(i) + time_data(i+1)) / 2;
+            % 差が正なら -2π、負なら +2π を加算して補正
+            if (phase_diff(i+1) - phase_diff(i)) > 0
+                offset = -2*pi;
+            else
+                offset = 2*pi;
+            end
+            % 補助点1：後のデータのmod前の値（Bに offset を加えた値）
+            new_time(end+1,1) = t_mid;
+            new_phase(end+1,1) = phase_diff(i+1) + offset;
+            
+            % NaN を挿入して線を途切れさせる
+            new_time(end+1,1) = NaN;
+            new_phase(end+1,1) = NaN;
+            
+            % 補助点2：前のデータのmod後の値（そのままの A）
+            new_time(end+1,1) = t_mid;
+            new_phase(end+1,1) = phase_diff(i) - offset;
+        end
+    end
+    % 最後の点を追加
+    new_time(end+1,1) = time_data(end);
+    new_phase(end+1,1) = phase_diff(end);
+    
+    %plot(new_time, new_phase, 'DisplayName', "Agent " + col);
+    %plot(1:length(new_phase), new_phase, 'DisplayName', "Agent " + col);
+end
+
+% 現在の y 軸の範囲を取得
+%yl = ylim;
+% 20.5秒から28秒の範囲をハイライトするパッチを追加
+% 色は赤、透明度は0.5、DisplayNameプロパティにラベルを設定
+%p = patch([20.5, 28, 28, 20.5], [yl(1), yl(1), yl(2), yl(2)], [1, 0.5, 0.5], ...
+%          'FaceAlpha', 0.5, 'EdgeColor', 'none', 'DisplayName', 'Barrier');
+% パッチを凡例に表示する設定
+%p.Annotation.LegendInformation.IconDisplayStyle = 'on';
+
+figure
+hold on
+s = 8564;
+e = 9429;
+plot(new_time(s:e)-new_time(s),-new_phase(s:e))
+s = 3614;
+e = 4577;
+plot(new_time(s:e)-new_time(s),-new_phase(s:e))
+s = 1548;
+e = 2587;
+plot(new_time(s:e)-new_time(s),new_phase(s:e))
+xlabel('Time $$t$$ (s)');
+ylabel('$$\phi_j-\phi_1$$');
+legend('show');
+ylim([-pi/10, pi]);
+yticks([-pi, -pi/2, 0, pi/2, pi]);
+yticklabels({'-\pi','-\pi/2','0','\pi/2','\pi'});
+%xlim([0 time_data(end)])
+xlim([0 20])
+legend(["$$d = 50$$mm","$$d = 100$$mm","$$d = 150$$mm"])
+grid on;
+tuneFigure;
+% 例：現在のFigureのサイズを変更する
+%set(gcf, 'Position', [100, 100, 700, 450]);
+%saveFigure;
