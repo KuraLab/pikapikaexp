@@ -7,6 +7,7 @@
 // 自作ヘッダ
 #include "read_mcp3008.h"
 #include "agent_config.h"
+#include "WiFiManager.h"
 
 // Wi-Fi接続設定
 const char* ssid     = "Potato6";
@@ -70,13 +71,7 @@ void setup() {
   analogReadResolution(12);
 
   // Wi-Fi接続
-  WiFi.begin(ssid, password);
-  Serial.print("Connecting to WiFi");
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-  Serial.println("\nWiFi connected.");
+  connectToWiFi(ssid, password);
 
   // UDPソケット
   udp.begin(serverPort);   // 送信用（begin()は送信のみなら必須ではないが念のため）
