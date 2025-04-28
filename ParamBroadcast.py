@@ -3,10 +3,10 @@ import numpy as np
 
 # 各エージェントごとのパラメータ設定（例）
 agent_params = {
-    1: {"omega": 3.14 * 6.2, "kappa": 30.0, "alpha": 0.0},
-    2: {"omega": 3.14 * 6.1, "kappa": 30.0, "alpha": 0.0},
-    3: {"omega": 3.14 * 6.0, "kappa": 30.0, "alpha": 0.0},    
-    4: {"omega": 3.14 * 5.9, "kappa": 30.0, "alpha": 0.0},
+    1: {"omega": 3.14 * 6.2, "kappa": 20.0, "alpha": 0.0},
+    2: {"omega": 3.14 * 6.1, "kappa": 20.0, "alpha": 0.0},
+    3: {"omega": 3.14 * 6.0, "kappa": 20.0, "alpha": 0.0},    
+    4: {"omega": 3.14 * 5.9, "kappa": 20.0, "alpha": 0.0},
     # 必要に応じて他のエージェントの設定を追加
 }
 

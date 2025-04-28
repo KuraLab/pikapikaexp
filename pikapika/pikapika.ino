@@ -41,8 +41,8 @@ float adcV0, adcV7;
 // フェーズ変数
 float phi = 0.0f;
 float phidot = 0.0f;
-float omega = 3.14f * 6.0f; // 初期値（サーバから取得できたら上書きされる）
-float kappa = 1.0f;
+float omega = 3.14f * 6.3f; // 初期値（サーバから取得できたら上書きされる）
+float kappa = 20.0f;
 float alpha = 0.0f; // alpha を追加
 
 // タイマー管理用
@@ -71,7 +71,7 @@ void setup() {
   analogReadResolution(12);
 
   // Wi-Fi接続
-  connectToWiFi(ssid, password);
+  //connectToWiFi(ssid, password);
 
   // UDPソケット
   udp.begin(serverPort);   // 送信用（begin()は送信のみなら必須ではないが念のため）
