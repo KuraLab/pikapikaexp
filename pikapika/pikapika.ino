@@ -14,7 +14,7 @@ const char* ssid     = "Potato6";
 const char* password = "50lanumtu6";
 
 // UDP送信先設定
-IPAddress serverIP(192, 168, 1, 43); // 送信先PCのIP
+IPAddress serverIP(192, 168, 1, 14); // 送信先PCのIP
 unsigned int serverPort = 5000;      // データ送信用ポート
 unsigned int paramServerPort = 5001; // パラメータ要求用ポート
 
@@ -71,7 +71,7 @@ void setup() {
   analogReadResolution(12);
 
   // Wi-Fi接続
-  //connectToWiFi(ssid, password);
+  connectToWiFi(ssid, password);
 
   // UDPソケット
   udp.begin(serverPort);   // 送信用（begin()は送信のみなら必須ではないが念のため）
