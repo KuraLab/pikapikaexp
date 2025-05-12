@@ -137,10 +137,6 @@ def export_plot_data():
 
 
 def on_key(event):
-    """
-    キー押下イベントハンドラ。
-    "e" キーでエクスポートを実行する。
-    """
     if event.key.lower() == "e":
         print("[INFO] Exporting plotted phase difference data...")
         export_plot_data()
